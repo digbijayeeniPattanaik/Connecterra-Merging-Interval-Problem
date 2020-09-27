@@ -96,29 +96,17 @@ namespace Connecterra
                     // if within extend input.Start
                     // else add to list
                     bool isStartWithinMergeRange = outcome.Any(a => IsWithin(input.Start, a[0] - mergeDistance, a[0] + mergeDistance) || IsWithin(input.Start, a[1] - mergeDistance, a[1] + mergeDistance));
-                    bool isEndWithinRange = outcome.Any(a => IsWithin(input.End, a[0] - mergeDistance, a[0] + mergeDistance) || IsWithin(input.End, a[1] - mergeDistance, a[1] + mergeDistance));
+                    bool isEndWithinMergeRange = outcome.Any(a => IsWithin(input.End, a[0] - mergeDistance, a[0] + mergeDistance) || IsWithin(input.End, a[1] - mergeDistance, a[1] + mergeDistance));
 
                     if (isStartWithinMergeRange)
                     {
-                        int index = outcome.FindIndex(a => IsWithin(input.Start, a[0] - mergeDistance, a[0] + mergeDistance) || IsWithin(input.Start, a[1] - mergeDistance, a[1] + mergeDistance));
-
-                        if (index != -1)
-                        {
-                            // take the least
-                            outcome[index][0] = Math.Min(outcome[index][0], input.Start);
-                            outcome[index][1] = Math.Max(outcome[index][1], input.End);
-                        }
+                        // pass true for start
+                        UpdateOutcomeList(input, true, mergeDistance, outcome);
                     }
-                    else if (isEndWithinRange)
+                    else if (isEndWithinMergeRange)
                     {
-                        int index = outcome.FindIndex(a => IsWithin(input.End, a[0] - mergeDistance, a[0] + mergeDistance) || IsWithin(input.End, a[1] - mergeDistance, a[1] + mergeDistance));
-
-                        if (index != -1)
-                        {
-                            // take the least
-                            outcome[index][0] = Math.Min(outcome[index][0], input.Start);
-                            outcome[index][1] = Math.Max(outcome[index][1], input.End);
-                        }
+                        // pass false for end
+                        UpdateOutcomeList(input, false, mergeDistance, outcome);
                     }
                     else
                     {
@@ -168,6 +156,18 @@ namespace Connecterra
             }
 
             return outcome;
+        }
+
+        private static void UpdateOutcomeList(Input input, bool isStart, int mergeDistance, List<int[]> outcome)
+        {
+            int index = outcome.FindIndex(a => IsWithin(isStart ? input.Start : input.End, a[0] - mergeDistance, a[0] + mergeDistance) || IsWithin(isStart ? input.Start : input.End, a[1] - mergeDistance, a[1] + mergeDistance));
+
+            if (index != -1)
+            {
+                // take the least
+                outcome[index][0] = Math.Min(outcome[index][0], input.Start);
+                outcome[index][1] = Math.Max(outcome[index][1], input.End);
+            }
         }
 
         private static bool IsWithin(int number, int minimum, int maximum)
